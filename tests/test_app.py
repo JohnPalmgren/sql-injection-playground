@@ -31,10 +31,9 @@ def test_album_all_route(page, test_web_address, db_connection):
         'Title: Folklore', 'Released: 2020',
         'Title: I Put a Spell on You', 'Released: 1965'
     ]
-
     page.goto(f"http://{test_web_address}/albums")
     divs = page.locator("div")
-    assert divs.all_inner_texts() == albums
+    expect(divs).to_have_text(albums)
 
 
 def test_album_all_routes_links(page, test_web_address, db_connection):
@@ -71,3 +70,27 @@ def test_add_new_album(page, test_web_address, db_connection):
     div = page.locator("div")
     expect(heading).to_have_text("Even in Arcadia")
     expect(div).to_have_text("Released: 2025")
+
+def test_artists_all_route(page, test_web_address, db_connection):
+    db_connection.seed('seeds/artists_table.sql')
+    page.goto(f"http://{test_web_address}/artists")
+    expect(page.get_by_text("Pixies")).to_be_visible()
+    expect(page.get_by_text("ABBA")).to_be_visible()
+    expect(page.get_by_text("Taylor Swift")).to_be_visible()
+    expect(page.get_by_text("Nina Simone")).to_be_visible()
+    expect(page.get_by_text("Rock")).to_be_visible()
+    expect(page.get_by_text("Pop").first).to_be_visible()
+    expect(page.get_by_text("Jazz")).to_be_visible()
+
+def test_add_new_artist(page, test_web_address, db_connection):
+    page.set_default_timeout(1000)
+    db_connection.seed('seeds/artists_table.sql')
+    page.goto(f"http://{test_web_address}/artists")
+    page.click("text=Add new artist")
+    page.fill("input[name='name']", "Sleep Token")
+    page.fill("input[name='genre']", "Metal")
+    page.click("input[value='Add artist']")
+    heading = page.locator("h1")
+    div = page.locator("div")
+    expect(heading).to_have_text("Sleep Token")
+    expect(div).to_have_text("Genre: Metal")

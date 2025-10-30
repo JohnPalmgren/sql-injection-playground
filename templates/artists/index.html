@@ -1,0 +1,21 @@
+<!Doctype html>
+<html lang="en">
+  <head>
+    <title>Music Library</title>
+  </head>
+  <body>
+    <h1>Artists</h1>
+    <ul>
+        {% for artist in artists %}
+            <li class="name">Name: {{artist.name}}</li>
+            <li class="genre" >Genre: {{artist.genre}}</li>
+            <li>
+                <a href="/artists/{{artist.id}}">View album</a>
+            </li>
+            </br>
+            </br>
+            {% endfor %}
+    </ul>
+      <a href="/artists/new">Add new artist</a>
+  </body>
+</html>

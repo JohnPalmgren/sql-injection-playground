@@ -59,7 +59,6 @@ def get_album(id):
     conn = get_flask_database_connection(app)
     repo = AlbumRepository(conn)
     album = repo.find(id)
-    print(album)
     return render_template("albums/show.html", album=album)
 
 @app.route('/artists')
@@ -67,7 +66,18 @@ def get_all_artists():
     conn = get_flask_database_connection(app)
     repo = ArtistRepository(conn)
     artists = repo.all()
-    return '\n'.join([f"{artist}" for artist in artists])
+    return render_template("artists/index.html", artists=artists)
+
+@app.route('/artists/<int:id>')
+def get_artist(id):
+    conn = get_flask_database_connection(app)
+    repo = ArtistRepository(conn)
+    artist = repo.find(id)
+    return render_template("artists/show.html", artist=artist)
+
+@app.route('/artists/new')
+def get_new_artists():
+    return render_template("artists/new.html")
 
 @app.route('/artists', methods=['POST'])
 def create_artist():
@@ -75,9 +85,8 @@ def create_artist():
     repo = ArtistRepository(conn)
     name = request.form['name']
     genre = request.form['genre']
-    repo.add(Artist(None, name, genre))
-    return 'Success', 200
-
+    artist = repo.add(Artist(None, name, genre))
+    return redirect(f"/artists/{artist.id}")
 
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database
