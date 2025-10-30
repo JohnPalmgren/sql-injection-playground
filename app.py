@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from lib.database_connection import get_flask_database_connection
 from lib.album_repository import AlbumRepository
 from lib.artist_repository import ArtistRepository
@@ -35,13 +35,13 @@ apply_example_routes(app)
 
 @app.route('/albums', methods=['POST'])
 def create_albums():
-    title = request.form['title']
-    release_year = request.form['release_year']
-    artist_id = request.form['artist_id']
     conn = get_flask_database_connection(app)
+    title = request.form['title']
+    release_year = int(request.form['release-year'])
     repo = AlbumRepository(conn)
-    repo.add(Album(None, title, release_year, artist_id))
-    return 'Success', 200
+    # No artist id until functionality is added
+    album = repo.add(Album(None, title, release_year, None))
+    return redirect(f"/albums/{album.id}")
 
 @app.route('/albums')
 def get_all_albums():
@@ -50,13 +50,17 @@ def get_all_albums():
     albums = repo.all()
     return render_template("albums/index.html", albums=albums)
 
+@app.route('/albums/new')
+def add_album():
+    return render_template("albums/new.html")
+
 @app.route('/albums/<int:id>')
 def get_album(id):
     conn = get_flask_database_connection(app)
     repo = AlbumRepository(conn)
     album = repo.find(id)
     print(album)
-    return render_template("album/index.html", album=album)
+    return render_template("albums/show.html", album=album)
 
 @app.route('/artists')
 def get_all_artists():

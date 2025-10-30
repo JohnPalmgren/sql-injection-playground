@@ -19,5 +19,8 @@ class AlbumRepository():
         return Album(album["id"], album["title"], album["release_year"], album["artist_id"])
     
     def add(self, album):
-        command = 'INSERT INTO albums (title, release_year, artist_id) VALUES (%s, %s, %s)'
-        self.connection.execute(command, [album.title, album.release_year, album.artist_id])
+        command = 'INSERT INTO albums (title, release_year, artist_id) VALUES (%s, %s, %s) RETURNING id'
+        rows = self.connection.execute(command, [album.title, album.release_year, album.artist_id])
+        row = rows[0]
+        album.id = row["id"]
+        return album

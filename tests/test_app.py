@@ -40,11 +40,17 @@ def test_album_all_route(page, test_web_address, db_connection):
 def test_album_all_routes_links(page, test_web_address, db_connection):
     db_connection.seed('seeds/albums_table.sql')
     page.goto(f"http://{test_web_address}/albums")
-    link = page.locator("a")
     page.click("text='Surfer Rosa album'")
     h1_tag = page.locator("h1")
     expect(h1_tag).to_have_text("Surfer Rosa")
 
+def test_single_album_returns_to_all_albums(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/albums/3")
+    link = page.locator("a")
+    link.click()
+    h1_tag = page.locator("h1")
+    expect(h1_tag).to_have_text("Albums")
 
 def test_album_single_route(page, test_web_address, db_connection):
     db_connection.seed('seeds/albums_table.sql')
@@ -53,3 +59,15 @@ def test_album_single_route(page, test_web_address, db_connection):
     release = page.locator("div")
     expect(title).to_have_text('Waterloo')
     expect(release).to_have_text('Released: 1974')
+
+def test_add_new_album(page, test_web_address, db_connection):
+    db_connection.seed('seeds/albums_table.sql')
+    page.goto(f"http://{test_web_address}/albums")
+    page.click("text=Add new album")
+    page.fill("input[name='title']", "Even in Arcadia")
+    page.fill("input[name='release-year']", "2025")
+    page.click("input[value='Add album']")
+    heading = page.locator("h1")
+    div = page.locator("div")
+    expect(heading).to_have_text("Even in Arcadia")
+    expect(div).to_have_text("Released: 2025")
