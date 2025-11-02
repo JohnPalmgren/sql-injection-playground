@@ -3,8 +3,10 @@ from flask import Flask, request, render_template, redirect
 from lib.database_connection import get_flask_database_connection
 from lib.album_repository import AlbumRepository
 from lib.artist_repository import ArtistRepository
+from lib.user_repository import UserRepository
 from lib.album import Album
 from lib.artist import Artist
+from lib.user import User
 
 # Create a new Flask app
 app = Flask(__name__)
@@ -87,6 +89,29 @@ def create_artist():
     genre = request.form['genre']
     artist = repo.add(Artist(None, name, genre))
     return redirect(f"/artists/{artist.id}")
+
+# Insecure routes to test SQL injection
+@app.route('/login')
+def get_all_users():
+    return render_template("login/index.html")
+
+@app.route('/login/<id>')
+def get_user(id):
+    conn = get_flask_database_connection(app)
+    repo = UserRepository(conn)
+    user = repo.find(id)
+    return render_template("login/show.html", user=user)
+
+@app.route('/login', methods=['POST'])
+def submit_login():
+    conn = get_flask_database_connection(app)
+    repo = UserRepository(conn)
+    email = request.form['email']
+    password = request.form['password']
+    user = repo.authenticate_user(User(None, None, email, False, password))
+    if user:
+        return redirect(f"/login/{user.id}")
+    return render_template("/login/failed.html")
 
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database
