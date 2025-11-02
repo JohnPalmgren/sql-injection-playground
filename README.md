@@ -48,6 +48,7 @@ Below are example SQL injections attacks that can be run against the insecure da
 
 ### Command
 email field: any value
+
 password field: `') OR 1=1 --`
 
 ### What it does
@@ -63,6 +64,7 @@ Essentially the query becomes or `SELECT * FROM users WHERE false OR true` which
 
 ### Command
 email field: any value
+
 password field:  `') OR email = 'jake@makers.tech'; --`
 
 ### What it does
